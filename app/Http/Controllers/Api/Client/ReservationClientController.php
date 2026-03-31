@@ -11,9 +11,9 @@ use App\Models\Remboursement;
 use App\Models\RegleCommission;
 use App\Models\Reservation;
 use App\Services\Reservation\CheckoutPanierService;
+use App\Services\TransactionalMailer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use InvalidArgumentException;
 
 /**
@@ -22,6 +22,10 @@ use InvalidArgumentException;
  */
 class ReservationClientController extends Controller
 {
+    public function __construct(
+        private readonly TransactionalMailer $transactionalMailer,
+    ) {}
+
     public function index(Request $request): JsonResponse
     {
         $data = $request->user()
@@ -158,7 +162,7 @@ class ReservationClientController extends Controller
         }
 
         if ($reservation->user?->email) {
-            Mail::to($reservation->user->email)->send(new TicketIssuedMail($reservation, $mapsUrl));
+            $this->transactionalMailer->send($reservation->user->email, new TicketIssuedMail($reservation, $mapsUrl));
         }
 
         return response()->json([

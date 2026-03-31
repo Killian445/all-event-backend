@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Mail\PrestataireUnderReviewMail;
 use App\Models\Prestataire;
 use App\Models\PrestataireMembre;
+use App\Services\TransactionalMailer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -17,6 +17,10 @@ use Illuminate\Validation\ValidationException;
  */
 class ProfilPrestataireController extends Controller
 {
+    public function __construct(
+        private readonly TransactionalMailer $transactionalMailer,
+    ) {}
+
     public function index(Request $request): JsonResponse
     {
         $prestataires = $request->user()->prestataires()->latest()->paginate(20);
@@ -95,7 +99,7 @@ class ProfilPrestataireController extends Controller
 
         $prestataire->update(['statut' => 'en_attente_validation', 'valide_le' => null, 'motif_rejet' => null]);
         foreach ($prestataire->users()->pluck('email')->filter()->unique() as $email) {
-            Mail::to($email)->send(new PrestataireUnderReviewMail($prestataire));
+            $this->transactionalMailer->send($email, new PrestataireUnderReviewMail($prestataire));
         }
         return response()->json(['message' => 'Profil soumis pour validation.', 'prestataire' => $prestataire->fresh()]);
     }

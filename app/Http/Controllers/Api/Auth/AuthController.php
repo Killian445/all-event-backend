@@ -12,10 +12,10 @@ use App\Models\PrestataireDocument;
 use App\Models\PrestataireMembre;
 use App\Models\Profil;
 use App\Models\User;
+use App\Services\TransactionalMailer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -26,6 +26,10 @@ use Illuminate\Validation\Rules\Password;
  */
 class AuthController extends Controller
 {
+    public function __construct(
+        private readonly TransactionalMailer $transactionalMailer,
+    ) {}
+
     /**
      * Inscription (compte client par défaut ; le rôle prestataire se fait via process métier / admin).
      */
@@ -78,7 +82,7 @@ class AuthController extends Controller
         }
 
         [$otpCode] = $this->creerOtp($user);
-        Mail::to($user->email)->send(new OtpActivationMail($user, $otpCode));
+        $this->transactionalMailer->send($user->email, new OtpActivationMail($user, $otpCode));
 
         return response()->json([
             'message' => 'Compte cree. Un code OTP a ete envoye par email pour activer votre compte.',
@@ -217,7 +221,7 @@ class AuthController extends Controller
         }
 
         [$otpCode] = $this->creerOtp($user);
-        Mail::to($user->email)->send(new OtpActivationMail($user, $otpCode));
+        $this->transactionalMailer->send($user->email, new OtpActivationMail($user, $otpCode));
 
         return response()->json(['message' => 'Nouveau code OTP envoye.']);
     }
@@ -292,7 +296,7 @@ class AuthController extends Controller
             }
         });
 
-        Mail::to($user->email)->send(new PrestataireUnderReviewMail($prestataire));
+        $this->transactionalMailer->send($user->email, new PrestataireUnderReviewMail($prestataire));
 
         return response()->json([
             'message' => 'Demande prestataire recue. Notre equipe la verifiera sous 48h ouvrees.',

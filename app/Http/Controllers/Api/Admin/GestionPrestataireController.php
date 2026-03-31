@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Mail\PrestataireDecisionMail;
 use App\Models\JournalNotification;
 use App\Models\Prestataire;
+use App\Services\TransactionalMailer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 
 /**
  * Supervision admin des prestataires.
@@ -16,6 +16,10 @@ use Illuminate\Support\Facades\Mail;
  */
 class GestionPrestataireController extends Controller
 {
+    public function __construct(
+        private readonly TransactionalMailer $transactionalMailer,
+    ) {}
+
     public function index(Request $request): JsonResponse
     {
         $query = Prestataire::query()
@@ -74,7 +78,7 @@ class GestionPrestataireController extends Controller
             } elseif ($payload['statut'] === 'rejete') {
                 $user->forceFill(['status' => 'inactive'])->save();
             }
-            Mail::to($user->email)->send(new PrestataireDecisionMail($prestataire, $payload['statut']));
+            $this->transactionalMailer->send($user->email, new PrestataireDecisionMail($prestataire, $payload['statut']));
             JournalNotification::create([
                 'user_id' => $user->id,
                 'canal' => 'email',
