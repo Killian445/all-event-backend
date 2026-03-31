@@ -69,7 +69,8 @@ class AuthController extends Controller
             'email' => $donnees['email'],
             'password' => $donnees['password'],
             'role' => 'client',
-            'status' => 'inactive',
+            'status' => 'active',
+            'email_verified_at' => now(),
         ]);
 
         if ($request->filled('prenom') || $request->filled('nom') || $request->filled('telephone')) {
@@ -81,16 +82,13 @@ class AuthController extends Controller
             ]);
         }
 
-        [$otpCode] = $this->creerOtp($user);
-        $this->transactionalMailer->send($user->email, new OtpActivationMail($user, $otpCode));
+        $jeton = $user->createToken('auth')->plainTextToken;
 
         return response()->json([
-            'message' => 'Compte cree. Un code OTP a ete envoye par email pour activer votre compte.',
-            'otp_required' => true,
-            'user' => [
-                'id' => $user->id,
-                'email' => $user->email,
-            ],
+            'message' => 'Compte cree.',
+            'token' => $jeton,
+            'token_type' => 'Bearer',
+            'user' => $this->formaterUtilisateur($user->load(['profil', 'prestataires'])),
         ], 201);
     }
 
