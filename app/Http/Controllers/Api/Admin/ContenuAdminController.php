@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 /**
- * Gestion du contenu fonctionnel.
+ * Gestion du   contenu fonctionnel.
  * Endpoints: categories, villes et activites globales.
  */
 class ContenuAdminController extends Controller
