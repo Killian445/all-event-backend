@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\Admin\ContenuAdminController;
 use App\Http\Controllers\Api\Admin\NotificationAdminController;
 use App\Http\Controllers\Api\Admin\StatistiqueAdminController;
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Auth\ChatbaseIdentityController;
 use App\Http\Controllers\Api\Auth\MotDePasseController;
 use App\Http\Controllers\Api\Client\AvisClientController;
 use App\Http\Controllers\Api\Client\CatalogueClientController;
@@ -60,6 +61,8 @@ Route::prefix('public')->group(function (): void {
     Route::post('/auth/mot-de-passe/email', [MotDePasseController::class, 'demanderLienReset']);
     Route::post('/auth/mot-de-passe/reset', [MotDePasseController::class, 'reinitialiser']);
 });
+
+Route::middleware('auth:sanctum')->get('/chatbase/identity-token', [ChatbaseIdentityController::class, 'token']);
 
 Route::prefix('client')
     ->middleware('auth:sanctum')

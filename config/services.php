@@ -39,4 +39,8 @@ return [
         ],
     ],
 
+    'chatbase' => [
+        'identity_secret' => env('CHATBASE_IDENTITY_SECRET'),
+    ],
+
 ];
