@@ -15,7 +15,8 @@ return [
     |
     */
 
-    'default' => env('CACHE_STORE', 'database'),
+    // Défaut "file" : évite une connexion SQL au boot (ex. artisan optimize / cache:clear) si CACHE_STORE n'est pas défini.
+    'default' => env('CACHE_STORE', 'file'),
 
     /*
     |--------------------------------------------------------------------------
