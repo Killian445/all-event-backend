@@ -1,0 +1,8 @@
+# Railway — config as code
+# https://docs.railway.com/deploy/config-as-code
+#
+# Le proxy Railway envoie le trafic vers le port défini par la variable d’environnement PORT.
+# Cette commande est un filet de sécurité si l’image ne respecte pas déjà PORT (Dockerfile aligné).
+
+[deploy]
+startCommand = "php artisan serve --host=0.0.0.0 --port $PORT"
