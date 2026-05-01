@@ -1,14 +1,10 @@
 pipeline {
     agent any
-
     environment {
-        APP_URL = 'https://pure-clarity-production-9d74.up.railway.app'
+        APP_URL = 'http://192.168.144.142'
+        SONAR_PROJECT_KEY = 'allevent-backend'
     }
-
-    triggers {
-        githubPush()
-    }
-
+    triggers { githubPush() }
     stages {
         stage('Clone') {
             steps {
@@ -25,6 +21,19 @@ pipeline {
         stage('Tests unitaires') {
             steps {
                 sh 'php artisan test || true'
+            }
+        }
+        stage('SAST - SonarQube') {
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    sh '''
+                        sonar-scanner \
+                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                        -Dsonar.sources=. \
+                        -Dsonar.exclusions=vendor/**,node_modules/** \
+                        -Dsonar.host.url=http://192.168.144.142:9000
+                    '''
+                }
             }
         }
         stage('SAST - Audit Composer') {
@@ -53,13 +62,8 @@ pipeline {
             }
         }
     }
-
     post {
-        success {
-            echo 'Pipeline DevSecOps Backend reussi !'
-        }
-        failure {
-            echo 'Pipeline echoue - verifier les logs'
-        }
+        success { echo 'Pipeline DevSecOps Backend reussi !' }
+        failure { echo 'Pipeline echoue - verifier les logs' }
     }
 }
