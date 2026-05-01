@@ -24,18 +24,18 @@ pipeline {
             }
         }
         stage('SAST - SonarQube') {
-            steps {
-                withSonarQubeEnv('sonarqube') {
-                    sh '''
-                        sonar-scanner \
-                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                        -Dsonar.sources=. \
-                        -Dsonar.exclusions=vendor/**,node_modules/** \
-                        -Dsonar.host.url=http://192.168.144.142:9000
-                    '''
-                }
-            }
+    steps {
+        withSonarQubeEnv('sonarqube') {
+            sh '''
+                /opt/sonar-scanner/bin/sonar-scanner \
+                -Dsonar.projectKey=allevent-backend \
+                -Dsonar.sources=. \
+                -Dsonar.exclusions=vendor/**,node_modules/** \
+                -Dsonar.host.url=http://192.168.144.142:9000
+            '''
         }
+    }
+}
         stage('SAST - Audit Composer') {
             steps {
                 sh 'composer audit || true'
