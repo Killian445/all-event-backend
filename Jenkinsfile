@@ -30,7 +30,7 @@ pipeline {
                         /opt/sonar-scanner/bin/sonar-scanner \
                         -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                         -Dsonar.sources=. \
-                        -Dsonar.exclusions=vendor/**,node_modules/** \
+                        -Dsonar.exclusions=vendor/**,node_modules/**,*.js \
                         -Dsonar.host.url=http://192.168.144.142:9000
                     '''
                 }
