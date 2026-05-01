@@ -51,6 +51,21 @@ pipeline {
                 sh 'docker build -t allevent-backend:latest .'
             }
         }
+	stage('Push Docker Hub') {
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: 'dockerhub-credentials',
+            usernameVariable: 'DOCKER_USER',
+            passwordVariable: 'DOCKER_PASS'
+        )]) {
+            sh '''
+                echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                docker tag allevent-backend:latest $DOCKER_USER/allevent-backend:latest
+                docker push $DOCKER_USER/allevent-backend:latest
+            '''
+        }
+    }
+}
         stage('Scan Trivy') {
             steps {
                 sh 'trivy image --exit-code 0 --severity HIGH,CRITICAL allevent-backend:latest || true'
