@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         SONAR_PROJECT_KEY = 'allevent-backend'
-        APP_URL = 'http://192.168.144.142'
+        APP_URL = 'http://192.168.226.128'
     }
     triggers { githubPush() }
     stages {
@@ -31,7 +31,7 @@ pipeline {
                         -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                         -Dsonar.sources=. \
                         -Dsonar.exclusions=vendor/**,node_modules/**,*.js \
-                        -Dsonar.host.url=http://192.168.144.142:9000
+                        -Dsonar.host.url=http://192.168.226.128:9000
                     '''
                 }
             }
@@ -111,7 +111,7 @@ pipeline {
         stage('Deploy Docker Compose') {
             steps {
                 sh '''
-                    cd /home/landry/allevent-deploy
+                    cd /home/killi/allevent-deploy
                     docker compose pull
                     docker compose up -d
                 '''
